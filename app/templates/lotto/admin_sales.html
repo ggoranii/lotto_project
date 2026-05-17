@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}판매 내역 - 관리자{% endblock %}
+
+{% block content %}
+<h1>📊 판매 내역 (관리자)</h1>
+
+<!-- 전체 통계 -->
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 2rem 0;">
+    <div style="background-color: #3498db; color: white; padding: 1.5rem; border-radius: 8px; text-align: center;">
+        <div style="font-size: 0.9rem;">전체 판매</div>
+        <div style="font-size: 2rem; font-weight: bold; margin-top: 0.5rem;">{{ total_tickets }}</div>
+    </div>
+    <div style="background-color: #2ecc71; color: white; padding: 1.5rem; border-radius: 8px; text-align: center;">
+        <div style="font-size: 0.9rem;">🎲 자동 구매</div>
+        <div style="font-size: 2rem; font-weight: bold; margin-top: 0.5rem;">{{ auto_count }}</div>
+    </div>
+    <div style="background-color: #e67e22; color: white; padding: 1.5rem; border-radius: 8px; text-align: center;">
+        <div style="font-size: 0.9rem;">✍️ 수동 구매</div>
+        <div style="font-size: 2rem; font-weight: bold; margin-top: 0.5rem;">{{ manual_count }}</div>
+    </div>
+</div>
+
+{% if pending_count > 0 %}
+    <div style="background-color: #fff3cd; color: #856404; padding: 1rem; border-radius: 4px; margin: 1rem 0;">
+        ⏳ 추첨 대기 중인 티켓: <strong>{{ pending_count }}개</strong>
+    </div>
+{% endif %}
+
+<h2 style="margin-top: 2rem;">📋 회차별 판매 현황</h2>
+{% if drawings_with_stats %}
+    <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+        <thead>
+            <tr style="background-color: #34495e; color: white;">
+                <th style="padding: 0.8rem; text-align: left;">회차</th>
+                <th style="padding: 0.8rem; text-align: center;">총 판매</th>
+                <th style="padding: 0.8rem; text-align: center;">자동</th>
+                <th style="padding: 0.8rem; text-align: center;">수동</th>
+                <th style="padding: 0.8rem; text-align: left;">추첨일</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stat in drawings_with_stats %}
+                <tr style="border-bottom: 1px solid #ddd;">
+                    <td style="padding: 0.8rem;">제{{ stat.drawing.round_no }}회차</td>
+                    <td style="padding: 0.8rem; text-align: center; font-weight: bold;">{{ stat.total }}</td>
+                    <td style="padding: 0.8rem; text-align: center;">{{ stat.auto }}</td>
+                    <td style="padding: 0.8rem; text-align: center;">{{ stat.manual }}</td>
+                    <td style="padding: 0.8rem;">{{ stat.drawing.draw_date|date:"Y-m-d H:i" }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p style="color: #888; margin-top: 1rem;">아직 추첨된 회차가 없습니다.</p>
+{% endif %}
+
+<h2 style="margin-top: 2rem;">🏆 구매 TOP 10 사용자</h2>
+{% if top_users %}
+    <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+        <thead>
+            <tr style="background-color: #34495e; color: white;">
+                <th style="padding: 0.8rem; text-align: center; width: 80px;">순위</th>
+                <th style="padding: 0.8rem; text-align: left;">사용자</th>
+                <th style="padding: 0.8rem; text-align: center;">구매 횟수</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in top_users %}
+                <tr style="border-bottom: 1px solid #ddd;">
+                    <td style="padding: 0.8rem; text-align: center;">
+                        {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% elif forloop.counter == 3 %}🥉{% else %}{{ forloop.counter }}{% endif %}
+                    </td>
+                    <td style="padding: 0.8rem;">{{ u.username }}</td>
+                    <td style="padding: 0.8rem; text-align: center; font-weight: bold;">{{ u.ticket_count }}회</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p style="color: #888; margin-top: 1rem;">구매 내역이 없습니다.</p>
+{% endif %}
+
+<div style="margin-top: 2rem;">
+    <a href="{% url 'admin_drawing' %}" class="btn">🎲 추첨 실행</a>
+    <a href="{% url 'admin_winners' %}" class="btn">🏆 당첨자 보기</a>
+</div>
+
+{% endblock %}

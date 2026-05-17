@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}당첨자 내역 - 관리자{% endblock %}
+
+{% block content %}
+<h1>🏆 당첨자 내역 (관리자)</h1>
+
+{% if drawing %}
+    <!-- 회차 선택 -->
+    {% if all_drawings.count > 1 %}
+        <div style="margin: 1rem 0;">
+            <strong>회차 선택:</strong>
+            {% for d in all_drawings %}
+                <a href="{% url 'admin_winners' round_no=d.round_no %}" 
+                   class="btn" 
+                   style="padding: 0.4rem 0.8rem; font-size: 0.9rem; margin: 0.2rem; 
+                          {% if d.round_no == drawing.round_no %}background-color: #e74c3c;{% else %}background-color: #95a5a6;{% endif %}">
+                    제{{ d.round_no }}회차
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- 추첨 결과 -->
+    <div style="background-color: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+        <h2>📢 제{{ drawing.round_no }}회차 추첨 결과</h2>
+        <p style="color: #888;">{{ drawing.draw_date|date:"Y년 m월 d일 H시 i분" }}</p>
+        <div style="margin: 1rem 0;">
+            {% for num in drawing.get_winning_numbers %}
+                <span class="lotto-ball 
+                    {% if num <= 10 %}ball-1
+                    {% elif num <= 20 %}ball-2
+                    {% elif num <= 30 %}ball-3
+                    {% elif num <= 40 %}ball-4
+                    {% else %}ball-5{% endif %}">
+                    {{ num }}
+                </span>
+            {% endfor %}
+            <span style="margin: 0 8px; font-size: 1.5rem;">+</span>
+            <span class="lotto-ball ball-bonus">{{ drawing.bonus }}</span>
+        </div>
+    </div>
+
+    <!-- 등수별 당첨자 -->
+    {% for rank in "12345"|make_list %}
+        {% with rank_int=forloop.counter winners=winners_by_rank|dictsort:"0" %}
+        {% endwith %}
+    {% endfor %}
+
+    {% for rank, winners in winners_by_rank.items %}
+        <div style="margin: 1.5rem 0;">
+            <h3 style="background-color: 
+                {% if rank == 1 %}#f39c12
+                {% elif rank == 2 %}#e67e22
+                {% elif rank == 3 %}#d35400
+                {% elif rank == 4 %}#7f8c8d
+                {% else %}#95a5a6{% endif %}; 
+                color: white; padding: 0.8rem; border-radius: 4px;">
+                {% if rank == 1 %}🥇 1등 ({{ winners|length }}명){% endif %}
+                {% if rank == 2 %}🥈 2등 ({{ winners|length }}명){% endif %}
+                {% if rank == 3 %}🥉 3등 ({{ winners|length }}명){% endif %}
+                {% if rank == 4 %}4등 ({{ winners|length }}명){% endif %}
+                {% if rank == 5 %}5등 ({{ winners|length }}명){% endif %}
+            </h3>
+            
+            {% if winners %}
+                <table style="width: 100%; border-collapse: collapse; margin-top: 0.5rem;">
+                    <thead>
+                        <tr style="background-color: #ecf0f1;">
+                            <th style="padding: 0.6rem; text-align: left;">사용자</th>
+                            <th style="padding: 0.6rem; text-align: left;">선택 번호</th>
+                            <th style="padding: 0.6rem; text-align: center;">방식</th>
+                            <th style="padding: 0.6rem; text-align: left;">구매일</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in winners %}
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 0.6rem;">{{ ticket.user.username }}</td>
+                                <td style="padding: 0.6rem;">
+                                    {% for num in ticket.get_numbers %}
+                                        <span class="lotto-ball 
+                                            {% if num <= 10 %}ball-1
+                                            {% elif num <= 20 %}ball-2
+                                            {% elif num <= 30 %}ball-3
+                                            {% elif num <= 40 %}ball-4
+                                            {% else %}ball-5{% endif %}" style="width: 25px; height: 25px; line-height: 25px; font-size: 0.75rem;">
+                                            {{ num }}
+                                        </span>
+                                    {% endfor %}
+                                </td>
+                                <td style="padding: 0.6rem; text-align: center;">
+                                    {% if ticket.purchase_type == 'auto' %}🎲{% else %}✍️{% endif %}
+                                </td>
+                                <td style="padding: 0.6rem;">{{ ticket.purchase_date|date:"Y-m-d H:i" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p style="color: #888; padding: 0.5rem 0;">당첨자 없음</p>
+            {% endif %}
+        </div>
+    {% endfor %}
+
+    <div style="margin-top: 1.5rem; padding: 1rem; background-color: #f5f5f5; border-radius: 4px;">
+        <strong>낙첨:</strong> {{ losers_count }}명
+    </div>
+
+{% else %}
+    <p style="color: #888; margin-top: 1.5rem;">아직 추첨된 회차가 없습니다.</p>
+    <a href="{% url 'admin_drawing' %}" class="btn">🎲 추첨 실행하기</a>
+{% endif %}
+
+<div style="margin-top: 2rem;">
+    <a href="{% url 'admin_drawing' %}" class="btn">🎲 추첨 실행</a>
+    <a href="{% url 'admin_sales' %}" class="btn">📊 판매 내역</a>
+</div>
+
+{% endblock %}

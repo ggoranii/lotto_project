@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}추첨 실행 - 관리자{% endblock %}
+
+{% block content %}
+<h1>🎲 추첨 실행 (관리자)</h1>
+
+{% if messages %}
+    {% for message in messages %}
+        <div style="padding: 1rem; background-color: {% if message.tags == 'success' %}#d4edda{% else %}#fff3cd{% endif %}; color: {% if message.tags == 'success' %}#155724{% else %}#856404{% endif %}; border-radius: 4px; margin: 1rem 0;">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div style="background-color: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+    <h2>📊 현재 상태</h2>
+    <p style="font-size: 1.1rem; margin-top: 1rem;">
+        <strong>추첨 대기 중인 티켓:</strong> 
+        <span style="color: #e74c3c; font-size: 1.3rem; font-weight: bold;">{{ pending_count }}개</span>
+    </p>
+</div>
+
+<h2>🎰 새 추첨 실행</h2>
+<p>지금까지 구매된 모든 티켓을 대상으로 추첨을 진행합니다.</p>
+<p style="color: #888; font-size: 0.9rem;">⚠️ 추첨은 되돌릴 수 없으니 신중히 진행해주세요.</p>
+
+<form method="post" style="margin: 2rem 0;" onsubmit="return confirm('정말 추첨을 진행하시겠습니까?');">
+    {% csrf_token %}
+    <button type="submit" class="btn" style="font-size: 1.2rem; padding: 1rem 2rem; background-color: #e74c3c;"
+        {% if pending_count == 0 %}disabled{% endif %}>
+        🎰 추첨 실행하기
+    </button>
+    {% if pending_count == 0 %}
+        <p style="color: #888; margin-top: 0.5rem;">추첨할 티켓이 없습니다.</p>
+    {% endif %}
+</form>
+
+<hr style="margin: 2rem 0;">
+
+<h2>📋 지난 추첨 내역</h2>
+{% if drawings %}
+    <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+        <thead>
+            <tr style="background-color: #34495e; color: white;">
+                <th style="padding: 0.8rem; text-align: left;">회차</th>
+                <th style="padding: 0.8rem; text-align: left;">추첨일</th>
+                <th style="padding: 0.8rem; text-align: left;">당첨번호</th>
+                <th style="padding: 0.8rem; text-align: center;">보너스</th>
+                <th style="padding: 0.8rem; text-align: center;">상세</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for drawing in drawings %}
+                <tr style="border-bottom: 1px solid #ddd;">
+                    <td style="padding: 0.8rem;">제{{ drawing.round_no }}회차</td>
+                    <td style="padding: 0.8rem;">{{ drawing.draw_date|date:"Y-m-d H:i" }}</td>
+                    <td style="padding: 0.8rem;">
+                        {% for num in drawing.get_winning_numbers %}
+                            <span class="lotto-ball 
+                                {% if num <= 10 %}ball-1
+                                {% elif num <= 20 %}ball-2
+                                {% elif num <= 30 %}ball-3
+                                {% elif num <= 40 %}ball-4
+                                {% else %}ball-5{% endif %}" style="width: 28px; height: 28px; line-height: 28px; font-size: 0.85rem;">
+                                {{ num }}
+                            </span>
+                        {% endfor %}
+                    </td>
+                    <td style="padding: 0.8rem; text-align: center;">
+                        <span class="lotto-ball ball-bonus" style="width: 28px; height: 28px; line-height: 28px; font-size: 0.85rem;">{{ drawing.bonus }}</span>
+                    </td>
+                    <td style="padding: 0.8rem; text-align: center;">
+                        <a href="{% url 'admin_winners' round_no=drawing.round_no %}" class="btn" style="padding: 0.3rem 0.8rem; font-size: 0.85rem;">보기</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p style="color: #888; margin-top: 1rem;">아직 추첨된 회차가 없습니다.</p>
+{% endif %}
+
+<div style="margin-top: 2rem;">
+    <a href="{% url 'admin_sales' %}" class="btn">📊 판매 내역</a>
+    <a href="{% url 'admin_winners' %}" class="btn">🏆 당첨자 보기</a>
+</div>
+
+{% endblock %}

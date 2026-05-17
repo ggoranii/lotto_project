@@ -77,7 +77,10 @@
             <a href="{% url 'my_tickets' %}">📋 내 티켓</a>
             <span>{{ user.username }}님</span>
             {% if user.is_staff %}
-                <a href="/admin/">관리자</a>
+                <a href="{% url 'admin_drawing' %}">🎲 추첨</a>
+                <a href="{% url 'admin_sales' %}">📊 판매내역</a>
+                <a href="{% url 'admin_winners' %}">🏆 당첨자</a>
+                <a href="/admin/">⚙️ Admin</a>
             {% endif %}
             <form method="post" action="/accounts/logout/" style="display: inline;">
                 {% csrf_token %}
