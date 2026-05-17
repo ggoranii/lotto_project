@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}내 구매 내역{% endblock %}
+
+{% block content %}
+<h1>📋 내 구매 내역</h1>
+
+{% if messages %}
+    {% for message in messages %}
+        <div style="padding: 1rem; background-color: #d4edda; color: #155724; border-radius: 4px; margin: 1rem 0;">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+{% if tickets %}
+    <p>총 <strong>{{ tickets|length }}개</strong>의 복권을 구매하셨습니다.</p>
+    
+    <div style="margin-top: 1.5rem;">
+        {% for ticket in tickets %}
+            <div style="border: 1px solid #ddd; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; background-color: #fafafa;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <span style="font-weight: bold; color: #555;">
+                        {% if ticket.purchase_type == 'auto' %}🎲 자동{% else %}✍️ 수동{% endif %}
+                    </span>
+                    <span style="color: #888; font-size: 0.9rem;">
+                        {{ ticket.purchase_date|date:"Y-m-d H:i" }}
+                    </span>
+                </div>
+                
+                <!-- 번호 표시 -->
+                <div style="margin: 1rem 0;">
+                    {% for num in ticket.get_numbers %}
+                        <span class="lotto-ball 
+                            {% if num <= 10 %}ball-1
+                            {% elif num <= 20 %}ball-2
+                            {% elif num <= 30 %}ball-3
+                            {% elif num <= 40 %}ball-4
+                            {% else %}ball-5{% endif %}">
+                            {{ num }}
+                        </span>
+                    {% endfor %}
+                </div>
+                
+                <!-- 추첨 결과 -->
+                {% if ticket.drawing %}
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #ddd;">
+                        <strong>제{{ ticket.drawing.round_no }}회차 결과</strong>
+                        {% if ticket.rank %}
+                            <span style="color: #e74c3c; font-weight: bold; margin-left: 1rem;">
+                                🎉 {{ ticket.rank }}등 당첨!
+                            </span>
+                        {% else %}
+                            <span style="color: #888; margin-left: 1rem;">낙첨</span>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #ddd; color: #888;">
+                        ⏳ 추첨 대기 중
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p style="margin: 2rem 0; color: #888; text-align: center;">
+        아직 구매한 복권이 없습니다.
+    </p>
+    <div style="text-align: center;">
+        <a href="{% url 'buy' %}" class="btn">🎫 복권 구매하러 가기</a>
+    </div>
+{% endif %}
+
+<div style="margin-top: 2rem;">
+    <a href="{% url 'buy' %}" class="btn">🎫 추가 구매하기</a>
+    <a href="{% url 'home' %}" class="btn" style="background-color: #95a5a6; margin-left: 0.5rem;">🏠 홈으로</a>
+</div>
+
+{% endblock %}

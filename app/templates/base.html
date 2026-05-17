@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}6/45 Lotto{% endblock %}</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        nav {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 1rem;
+        }
+        nav a:hover { color: #f39c12; }
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lotto-ball {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            border-radius: 50%;
+            color: white;
+            font-weight: bold;
+            margin: 0 4px;
+        }
+        .ball-1 { background-color: #fbc400; }
+        .ball-2 { background-color: #69c8f2; }
+        .ball-3 { background-color: #ff7272; }
+        .ball-4 { background-color: #aaa; }
+        .ball-5 { background-color: #b0d840; }
+        .ball-bonus { background-color: #ff9966; }
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover { background-color: #2980b9; }
+        h1 { margin-bottom: 1rem; }
+        h2 { margin: 1rem 0; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div>
+            <a href="{% url 'home' %}"><strong>🎰 6/45 Lotto</strong></a>
+        </div>
+        <div>
+            {% if user.is_authenticated %}
+            <a href="{% url 'buy' %}">🎫 구매</a>
+            <a href="{% url 'my_tickets' %}">📋 내 티켓</a>
+            <span>{{ user.username }}님</span>
+            {% if user.is_staff %}
+                <a href="/admin/">관리자</a>
+            {% endif %}
+            <form method="post" action="/accounts/logout/" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" style="background: none; border: none; color: white; cursor: pointer; padding: 0; text-decoration: underline;">로그아웃</button>
+            </form>
+        {% else %}
+            <a href="/accounts/login/">로그인</a>
+            <a href="/accounts/signup/">회원가입</a>
+        {% endif %}
+        </div>
+    </nav>
+    
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

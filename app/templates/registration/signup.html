@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}회원가입{% endblock %}
+
+{% block content %}
+<h1>📝 회원가입</h1>
+
+<form method="post" style="margin-top: 2rem;">
+    {% csrf_token %}
+    
+    {% for field in form %}
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">
+                {{ field.label }}
+            </label>
+            {{ field }}
+            {% if field.help_text %}
+                <small style="color: #666; display: block; margin-top: 0.3rem;">
+                    {{ field.help_text|safe }}
+                </small>
+            {% endif %}
+            {% if field.errors %}
+                <div style="color: red; margin-top: 0.3rem;">
+                    {{ field.errors }}
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    
+    <button type="submit" class="btn">가입하기</button>
+    <a href="{% url 'login' %}" style="margin-left: 1rem;">이미 계정이 있으신가요?</a>
+</form>
+
+<style>
+    input[type="text"], input[type="password"], input[type="email"] {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+</style>
+{% endblock %}
